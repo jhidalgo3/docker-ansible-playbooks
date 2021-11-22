@@ -6,10 +6,20 @@ Software installed
 * boto3
 * Aws CLI v2
 
+First step, create an `inventory-docker` file
+
+```ini
+[localhost]
+127.0.0.1  ansible_connection=local
+
+[localhost:vars]
+ansible_python_interpreter=/usr/local/bin/python3
+```
+
 Executes ansible-playbook command against an externally mounted set of Ansible playbooks
 
 ```
-docker run --rm -it -v PATH_TO_LOCAL_PLAYBOOKS_DIR:/ansible/playbooks jhidalgo3/ansible_playbook PLAYBOOK_FILE
+docker run --rm -it -v PATH_TO_LOCAL_PLAYBOOKS_DIR:/ansible/playbooks jhidalgo3/ansible PLAYBOOK_FILE
 ```
 
 For example, assuming your project's structure follows [best practices](http://docs.ansible.com/ansible/playbooks_best_practices.html#directory-layout), the command to run ansible-playbook from the top-level directory would look like:
@@ -20,6 +30,10 @@ docker run --rm -it -v $(pwd):/ansible/playbooks jhidalgo3/ansible playbook.yml
 
 Ansible playbook variables can simply be added after the playbook name.
 
+__RUN BASH__
+
+docker run --rm -it -v $(pwd):/ansible/playbooks --entry-point bash jhidalgo3/ansible playbook.yml
+
 ## SSH Keys
 
 If Ansible is interacting with external machines, you'll need to mount an SSH key pair for the duration of the play:
@@ -29,7 +43,7 @@ docker run --rm -it \
     -v ~/.ssh/id_rsa:/root/.ssh/id_rsa \
     -v ~/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub \
     -v $(pwd):/ansible/playbooks \
-    jhidalgo3/ansible_playbook site.yml -e @FILE_VARS.[json | yaml]
+    jhidalgo3/ansible_playbook site.yml -e @FILE_VARS.[json | yaml] -i inventary-docker
 ```
 
 ## Ansible Vault
@@ -50,7 +64,7 @@ docker run --rm -it -v $(pwd):/ansible/playbooks --entrypoint ansible-vault -v ~
 
 ## Testing Playbooks - Ansible Target Container
 
-The [Ansible Target Docker image](https://github.com/jhidalgo3/ansible_target) is an SSH container optimized for testing Ansible playbooks.
+The [Ansible Target Docker image](https://github.com/philm/ansible_target) is an SSH container optimized for testing Ansible playbooks.
 
 First, define your inventory file.
 
@@ -77,7 +91,7 @@ docker run --rm -it \
     -v ~/.ssh/id_rsa:/root/.ssh/id_rsa \
     -v ~/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub \
     -v $(pwd):/ansible/playbooks \
-    jhidalgo3/ansible_playbook tests.yml -i inventory
+    jhidalgo3/ansible tests.yml -i inventory
 ```
 
 Note: the SSH key used above should match the one used to run Ansible Target.
