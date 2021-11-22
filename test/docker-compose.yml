@@ -1,14 +1,14 @@
 target:
   image: philm/ansible_target:latest
   container_name: ansible_target
-  expose:
-    - "22"
+  ports:
+    - "2222:22"
   volumes:
-    - ~/.ssh/id_rsa.pub:/home/ubuntu/.ssh/authorized_keys
+    - ~/.ssh/authorized_keys:/home/ubuntu/.ssh/authorized_keys
   privileged: true
 
 test:
-  image: philm/ansible_playbook
+  image: jhidalgo3/ansible
   links:
     - target
   volumes:
